@@ -82,7 +82,7 @@ function game() {
 
         if (result != "Tie") {
 
-            result.includes("Won") ? computerScore++ : playerScore++;
+            result.includes("Won") ? playerScore++ : computerScore++;
 
         }
 
