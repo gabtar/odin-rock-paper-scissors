@@ -1,27 +1,25 @@
 // Rock beats scissors, scissors beats paper, paper beats rock
 
+document.addEventListener('DOMContentLoaded', function() {
+
+  document.getElementById('new-game').onclick = resetGame;
+
+});
+
 const OPTIONS = ["rock", "scissors", "paper"];
 
 function computerPlay() {
-
     return OPTIONS[Math.floor(Math.random() * OPTIONS.length)];
-
 }
 
-function round(playerSelection, computerSelection) {
-
-    playerSelection = playerSelection.toLowerCase();
-
+function playRound(playerSelection, computerSelection) {
     let winner;
     let result;
 
-    console.log(`Player ${playerSelection}`);
-    console.log(`Computer ${computerSelection}`);
+    playerSelection = playerSelection.toLowerCase();
 
     if (playerSelection === computerSelection) {
-
         result = "Tie";
-
     } else {
 
         switch (playerSelection) {
@@ -41,11 +39,9 @@ function round(playerSelection, computerSelection) {
     }
 
     if (winner == "player") {
-
         result = `You Won! ${playerSelection} beats ${computerSelection}`;
 
     } else if ((winner == "computer")) {
-
         result = `You Lose! ${computerSelection} beats ${playerSelection}`;
 
     }
@@ -67,19 +63,13 @@ function game() {
         let valid = true;
 
         while (valid) {
-
             playerSelection = prompt("Choose your weapon {Rock, Paper, Scissors}: ").toLowerCase();
             valid = !(OPTIONS.includes(playerSelection));
 
-
         }
 
-        result = round(playerSelection, computerPlay());
-        console.log(`ROUND ${i}`);
-        console.log(result);
-        console.log('-----------------------');
-
-
+        result = playRound(playerSelection, computerPlay());
+       
         if (result != "Tie") {
 
             result.includes("Won") ? playerScore++ : computerScore++;
@@ -96,9 +86,13 @@ function game() {
         console.info('Tie');
     }
 
-    console.log(`FINAL RESULT: Player: ${playerScore} / Computer: ${computerScore}`);
-
 }
 
+// Helpers
+function resetGame() {
 
-game();
+  document.getElementById('player-score').textContent = "0";
+  document.getElementById('cpu-score').textContent = "0";
+  
+}
+
