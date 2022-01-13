@@ -1,98 +1,147 @@
-// Rock beats scissors, scissors beats paper, paper beats rock
-
 document.addEventListener('DOMContentLoaded', function() {
 
-  document.getElementById('new-game').onclick = resetGame;
+  let game = {
+    inProgress: true,
+    score: {
+      player: 0, computer: 0
+    },
+    winner: undefined,
+    scoreToWin: 5
+  }
+
+  document.getElementById('help-menu').addEventListener('click', () => {
+    document.getElementById('help').style.display = "block";
+  })
+
+  document.querySelector('.close').addEventListener('click', () => {
+    document.getElementById('help').style.display = "none";
+  });
+
+  document.getElementById('new-game').onclick = () => {
+
+    if(game.inProgress) {
+      if(!window.confirm("Game in progress. Are you sure you want to start a new game?")) {
+        return;
+      }
+    }
+
+    resetScore();
+    game = {
+      ...game,
+      inProgress: true,
+      score: {
+        player: 0, computer: 0
+      },
+      winner: undefined,
+    }
+
+    setStatus("New game");
+    setTimeout(() => setStatus("Your Turn"), 500);
+  }
+
+  document.querySelectorAll('.options>button').forEach((button) => {
+
+    button.addEventListener('click', (event) => {
+
+      if(game.winner) {
+        return;
+      }
+
+      let playerSelection = event.target.id;
+      let computerSelection = computerPlay();
+      let result = "Tie, select again";
+
+      // Update selection for each player
+      updateSelection("computer", computerSelection);
+      updateSelection("player", playerSelection);
+
+      roundResult = playRound(playerSelection, computerSelection);
+
+      // Update scores
+      if(roundResult !== "Tie") {
+        game.score[roundResult] += 1;
+        updateScore(roundResult, game.score[roundResult])
+      }
+
+      if (roundResult == "player") {
+        result = `You Won! ${playerSelection} beats ${computerSelection}`;
+
+      } else if ((roundResult == "computer")) {
+        result = `You Lose! ${computerSelection} beats ${playerSelection}`;
+
+      }
+
+      setStatus(result);
+
+      if(game.score.player == game.scoreToWin || game.score.computer == game.scoreToWin) {
+        game.winner = roundResult;
+        game.inProgress = false;
+        setStatus(`${roundResult} won the game`.toUpperCase())
+        document.getElementById('status').classList.add('finished');
+      }
+
+    });
+
+  });
 
 });
 
+// Helpers
 const OPTIONS = ["rock", "scissors", "paper"];
 
 function computerPlay() {
-    return OPTIONS[Math.floor(Math.random() * OPTIONS.length)];
+  return OPTIONS[Math.floor(Math.random() * OPTIONS.length)];
 }
 
 function playRound(playerSelection, computerSelection) {
-    let winner;
-    let result;
+  let winner = "Tie";
 
-    playerSelection = playerSelection.toLowerCase();
+  if (playerSelection !== computerSelection) {
 
-    if (playerSelection === computerSelection) {
-        result = "Tie";
-    } else {
+    switch (playerSelection) {
+      case "rock":
+        computerSelection === "scissors" ? winner = "player" : winner = "computer";
+        break;
 
-        switch (playerSelection) {
-            case "rock":
-                computerSelection === "scissors" ? winner = "player" : winner = "computer";
-                break;
+      case "scissors":
+        computerSelection === "paper" ? winner = "player" : winner = "computer";
+        break;
 
-            case "scissors":
-                computerSelection === "paper" ? winner = "player" : winner = "computer";
-                break;
-
-            case "paper":
-                computerSelection === "rock" ? winner = "player" : winner = "computer";
-                break;
-
-        }
-    }
-
-    if (winner == "player") {
-        result = `You Won! ${playerSelection} beats ${computerSelection}`;
-
-    } else if ((winner == "computer")) {
-        result = `You Lose! ${computerSelection} beats ${playerSelection}`;
+      case "paper":
+        computerSelection === "rock" ? winner = "player" : winner = "computer";
+        break;
 
     }
+  }
 
-    return result;
+  return winner;
 }
 
-
-function game() {
-
-    let computerScore = 0;
-    let playerScore = 0;
-
-    // Game to 5 rounds
-    for (let i = 0; i < 5; i++) {
-
-        let playerSelection = "";
-        let result = "";
-        let valid = true;
-
-        while (valid) {
-            playerSelection = prompt("Choose your weapon {Rock, Paper, Scissors}: ").toLowerCase();
-            valid = !(OPTIONS.includes(playerSelection));
-
-        }
-
-        result = playRound(playerSelection, computerPlay());
-       
-        if (result != "Tie") {
-
-            result.includes("Won") ? playerScore++ : computerScore++;
-
-        }
-
-    }
-
-    if (playerScore > computerScore) {
-        console.info('Congratulations You Won!!!');
-    } else if (computerScore > playerScore) {
-        console.info('Sorry, you Lose the game');
-    } else {
-        console.info('Tie');
-    }
-
-}
-
-// Helpers
-function resetGame() {
-
+function resetScore() {
   document.getElementById('player-score').textContent = "0";
-  document.getElementById('cpu-score').textContent = "0";
-  
+  document.getElementById('computer-score').textContent = "0";
+  document.getElementById('status').classList.remove('finished');
 }
 
+function setStatus(message) {
+  node = document.getElementById('status');
+  node.textContent = message; 
+  node.classList.toggle('animate-fadeInOut');
+  setTimeout(() => node.classList.remove('animate-fadeInOut'), 500);
+}
+
+function updateScore(player, score) {
+  document.getElementById(`${player}-score`).textContent = score;
+}
+
+function updateSelection(player, selection) {
+
+  const node = document.getElementById(`${player}-selection`);
+  document.getElementById(`${player}-selection-text`).textContent = selection.toUpperCase();
+
+  node.innerHTML = `<i class="far fa-hand-${selection}"></i>`;
+
+  node.classList.add('animate-fadeInOut');
+  setTimeout(() => node.classList.remove('animate-fadeInOut'), 500);
+
+}
